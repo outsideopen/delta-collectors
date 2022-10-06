@@ -10,10 +10,12 @@ class Hydra(Collector):
     def __init__(self):
         super(Hydra, self).__init__(__name__)
 
-    def lock(self):
+    @staticmethod
+    def lock():
         return Hydra.semaphore.acquire(blocking=False)
 
-    def should_run(self):
+    @staticmethod
+    def should_run():
         return True
 
     def run(self):

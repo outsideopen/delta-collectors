@@ -9,13 +9,15 @@ class Collector(ABC):
         self.name = str(name)
         self.logger = logging.getLogger(f"delta.{self.name}")
 
+    @staticmethod
     @abstractmethod
-    def lock(self):
-        pass
+    def lock():
+        raise NotImplementedError()
 
+    @staticmethod
     @abstractmethod
-    def should_run(self):
-        pass
+    def should_run():
+        raise NotImplementedError()
 
     @abstractmethod
     def run(self):

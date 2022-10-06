@@ -10,10 +10,10 @@ class Nmap(Collector):
     def __init__(self):
         super(Nmap, self).__init__(__name__)
 
-    def lock(self):
+    def lock():
         return Nmap.semaphore.acquire(blocking=False)
 
-    def should_run(self):
+    def should_run():
         return True
 
     def run(self):

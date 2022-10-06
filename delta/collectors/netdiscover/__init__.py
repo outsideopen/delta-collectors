@@ -10,12 +10,14 @@ class Netdiscover(Collector):
     def __init__(self):
         super(Netdiscover, self).__init__(__name__)
 
-    def lock(self):
+    @staticmethod
+    def lock():
         return Netdiscover.semaphore.acquire(blocking=False)
 
         return False
 
-    def should_run(self):
+    @staticmethod
+    def should_run():
         return True
 
     def run(self):
