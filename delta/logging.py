@@ -17,7 +17,7 @@ class LogLevel(Enum):
 
 def getLogger(module):
     color_format = colorlog.ColoredFormatter(
-        "{log_color}{levelname:7} {purple}{asctime} {threadName} {blue}{name}:{lineno}{reset}\n{message}",
+        "{log_color}{levelname:7} {purple}{asctime} {threadName} {blue}{name}:{lineno}{reset} {message}",
         datefmt="%Y-%m-%d %H:%M:%S",
         reset=True,
         log_colors={
