@@ -1,9 +1,10 @@
-from delta.migration import migrate_db
 from delta.runner import Runner
+from delta.uploader import Uploader
 
 
 def run():
-    migrate_db()
-    
+    uploader = Uploader()
+    uploader.run()
+
     runner = Runner()
     runner.run()
