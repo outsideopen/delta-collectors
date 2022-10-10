@@ -29,7 +29,7 @@ class Runner:
         __class__ = getattr(__module__, name.capitalize())
         return __class__
 
-    def worker_main(self):
+    def runner(self):
         while True:
             job_func = self.jobqueue.get()
             job_func()
@@ -37,7 +37,7 @@ class Runner:
 
     def run(self):
         for i in range(0, self.__nr_of_threads__):
-            worker_thread = threading.Thread(target=self.worker_main, daemon=True)
+            worker_thread = threading.Thread(target=self.runner, daemon=True)
             worker_thread.start()
             self.threads.append(worker_thread)
 

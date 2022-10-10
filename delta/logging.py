@@ -3,8 +3,6 @@ from enum import Enum
 
 import colorlog
 
-from digital_hydrant.config import config as conf
-
 
 class LogLevel(Enum):
     CRITICAL = 50
@@ -31,7 +29,7 @@ def getLogger(module):
     )
 
     logger = logging.getLogger(module)
-    logger.setLevel("INFO")
+    logger.setLevel("DEBUG")
 
     if not logger.hasHandlers():
         stream_handler = logging.StreamHandler()
