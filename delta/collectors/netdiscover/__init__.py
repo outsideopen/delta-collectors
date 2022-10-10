@@ -4,6 +4,7 @@ from datetime import datetime
 from os import path
 from threading import Semaphore
 
+from delta import scratch
 from delta.collector_queue import q
 from delta.collectors.collector import Collector
 
@@ -75,6 +76,8 @@ class Netdiscover(Collector):
                             "collectedAt": datetime.timestamp(datetime.now()) * 1000,
                         }
                     )
+                    scratch.add_ip(parsed_output["ip"])
+
             self.update_subnet_index((subnet_index + 1) % len(SUBNETS))
 
         except Exception as e:

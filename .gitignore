@@ -1,3 +1,4 @@
 delta.egg-info/
 __pycache__
 .netdiscover_subnet_index
+scratch.tsv
