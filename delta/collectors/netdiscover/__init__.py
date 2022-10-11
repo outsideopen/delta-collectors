@@ -50,8 +50,7 @@ class Netdiscover(Collector):
 
     def run(self):
         try:
-
-            self.logger.info(f"{self.name} running...")
+            self.logger.debug(f"{self.name} running...")
             subnet_index = self.get_subnet_index()
 
             subnet = SUBNETS[subnet_index]
@@ -66,7 +65,7 @@ class Netdiscover(Collector):
 
             for line in output.split("\n"):
                 parsed_output = self.parse_line(line)
-                self.logger.debug(f"Parsed Output: {parsed_output}")
+                self.logger.info(f"Output: {parsed_output}")
 
                 if parsed_output:
                     q.put(

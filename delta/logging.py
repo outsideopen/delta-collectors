@@ -1,4 +1,5 @@
 import logging
+import os
 from enum import Enum
 
 import colorlog
@@ -29,7 +30,8 @@ def getLogger(module):
     )
 
     logger = logging.getLogger(module)
-    logger.setLevel("DEBUG")
+    level = os.environ.get("DELTA_LOG_LEVEL") or "INFO"
+    logger.setLevel(level.upper())
 
     if not logger.hasHandlers():
         stream_handler = logging.StreamHandler()
