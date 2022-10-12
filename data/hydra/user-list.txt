@@ -1,0 +1,13 @@
+Admin
+Administrator
+admin
+administrator
+ansible
+dev
+pi
+root
+sa
+sql
+temp
+ubuntu
+user1

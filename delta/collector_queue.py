@@ -1,3 +1,3 @@
 from persistqueue import FIFOSQLiteQueue
 
-q = FIFOSQLiteQueue(path="./test", multithreading=True)
+q = FIFOSQLiteQueue(path=".", multithreading=True)

@@ -1,5 +1,10 @@
 delta.egg-info/
 __pycache__
 
+# Ignore state files
 .netdiscover_subnet_index
 scratch.json
+
+data.db
+data.db-shm
+data.db-wal

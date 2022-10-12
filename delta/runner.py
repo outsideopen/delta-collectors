@@ -43,7 +43,7 @@ class Runner:
 
         try:
             while True:
-                self.logger.debug(f"Queue: {list(self.jobqueue.queue)}")
+                # self.logger.debug(f"Queue: {list(self.jobqueue.queue)}")
                 for collector_name in self.collector_names:
                     Klass = self.get_class(collector_name)
 

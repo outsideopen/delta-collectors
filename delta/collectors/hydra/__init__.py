@@ -10,9 +10,9 @@ from delta.collector_queue import q
 from delta.collectors.collector import Collector
 
 INTERFACE = os.environ.get("DELTA_NETWORK_INTERFACE") or "wlan0"
-PASSWORDS = "./data/hydra/common-passwords.txt"
+PASSWORDS = "./data/hydra/common-passwords-short.txt"
 USER_LIST = "./data/hydra/user-list.txt"
-SNMP_WORD_LIST = "./data/hydra/snmp-word-list.txt"
+SNMP_WORD_LIST = "./data/hydra/snmp-word-list-short.txt"
 
 SSH_PORTS = "22"
 SNMP_PORTS = "161"
@@ -40,15 +40,20 @@ class Hydra(Collector):
             self.logger.debug(f"hydra input: {next}")
             if next:
                 (ip, port) = next
+                if not port:
+                    scratch.update_hydra_last_scan(ip, port)
+                    return
+
                 self.logger.debug(f"{ip}, {port}")
                 results = self.__hydra__(ip, port)
-                q.put(
-                    {
-                        "collector": self.name,
-                        "content": results,
-                        "collectedAt": datetime.timestamp(datetime.now()) * 1000,
-                    }
-                )
+                if results is not None:
+                    q.put(
+                        {
+                            "collector": self.name,
+                            "content": results,
+                            "collectedAt": datetime.timestamp(datetime.now()) * 1000,
+                        }
+                    )
                 scratch.update_hydra_last_scan(ip, port)
             else:
                 sleep(10)
@@ -71,9 +76,6 @@ class Hydra(Collector):
                 stdout=subprocess.PIPE,
             )
 
-            parsed_output = {}
-            parsed_output["target"] = ip
-
             if port in SSH_PORTS:
                 command = f"hydra -I -L {USER_LIST} -P {PASSWORDS} {ip} ssh 2>&1"
                 self.logger.debug(command)
@@ -82,6 +84,8 @@ class Hydra(Collector):
                 ).stdout.decode("utf-8")
 
                 parsed_output = self.parse_output(output)
+                parsed_output["target"] = ip
+                return parsed_output
 
             if port in SNMP_PORTS:
                 command = f"hydra -I -P {SNMP_WORD_LIST} {ip} snmp 2>&1"
@@ -90,8 +94,8 @@ class Hydra(Collector):
                 ).stdout.decode("utf-8")
 
                 parsed_output = self.parse_output(output)
-
-            return parsed_output
+                parsed_output["target"] = ip
+                return parsed_output
         finally:
             # disconnect from subnet
             self.logger.debug(f"Release {ip} network, with IP {my_subnet_ip}")
@@ -126,6 +130,8 @@ class Hydra(Collector):
                 for i in range(1, len(parts), 2):
                     result[parts[i].replace(":", "")] = parts[i + 1]
                 results.append(result)
+            elif line.startswith("[ERROR]"):
+                data["error"] = line
         data["results"] = results
         data["vulnerable"] = len(results) > 0
         return data
