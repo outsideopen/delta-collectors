@@ -27,22 +27,29 @@ class Nmap(Collector):
         try:
             self.logger.debug(f"{self.name} running...")
 
-            ip = scratch.next_ip_to_nmap()
-            self.logger.debug(ip)
+            results = scratch.next_nmap()
+            if results:
+                self.logger.debug(f"nmap input: {results}")
+                (ip, protocol) = results
 
-            if ip:
-                results = nmap3.NmapScanTechniques().nmap_syn_scan(ip, "-sU")
-                self.logger.info(f"Output: {results}")
+                nmap = nmap3.NmapScanTechniques()
+                if protocol == 'tcp':
+                    output = nmap.nmap_tcp_scan(ip)
+                if protocol == 'udp':
+                    output = nmap.nmap_udp_scan(ip)
+
+                self.logger.info(f"Output: {output}")
+
                 q.put(
                     {
                         "collector": self.name,
-                        "content": results,
+                        "content": output,
                         "collectedAt": datetime.timestamp(datetime.now()) * 1000,
                     }
                 )
 
-                ports = self.__open_ports__(results, ip)
-                scratch.add_nmap_results(ip, ports)
+                ports = self.__open_ports__(output, ip)
+                scratch.add_nmap_results(ip, protocol, ports)
             else:
                 sleep(10)
 
@@ -54,7 +61,7 @@ class Nmap(Collector):
     def __open_ports__(self, results, ip):
         open_ports = []
 
-        for port_entry in results.get(ip, {}).get("ports", {}):
+        for port_entry in results.get(ip, {}).get("ports", []):
             if port_entry["state"] == "open":
-                open_ports.append(f"{port_entry['portid']}/{port_entry['protocol']}")
+                open_ports.append(port_entry['portid'])
         return open_ports
