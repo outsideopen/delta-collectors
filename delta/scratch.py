@@ -43,22 +43,36 @@ def add_nmap_results(ip, ports):
     write_file(results)
 
 
-def get_ips():
-    contents = read_file()
-
-    return [sub["ip"] for sub in contents]
-
-
-def next_ip_to_nmap():
+def next_hydra():
     results = read_file()
-    # `or 0` put elements with None at the top of the sort
-    results.sort(key=lambda e: e["ip_last_found"] or 0)
 
-    return results[0]["ip"] if len(results) > 0 else None
+    if len(results) == 0:
+        return None
+
+    results.sort(key=lambda e: e.get("hydra_last_scanned", 0))
+
+    for result in results:
+        ports = result.get("tcp", {}).get("ports", [])
+        if len(ports) > 0:
+            port_index = (result.get("hydra_last_scanned_index", -1) + 1) % len(ports)
+
+            return (result["ip"], ports[port_index])
 
 
-def next_ip_to_hydra():
-    pass
+def update_hydra_last_scan(ip, port):
+    results = read_file()
+
+    for result in results:
+        if ip == result["ip"]:
+
+            ports = result.get("tcp", {}).get("ports", [])
+            port_index = ports.index(port)
+
+            result["hydra_last_scanned_index"] = port_index
+            if port_index >= len(ports) - 1:
+                result["hydra_last_scanned"] = datetime.timestamp(datetime.now()) * 1000
+
+    write_file(results)
 
 
 def to_dict():
