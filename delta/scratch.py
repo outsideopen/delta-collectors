@@ -100,7 +100,7 @@ def next_hydra():
         port = result.get(protocol).get("hydra_last_scanned_port", ports[0])
 
         try:
-            index = ports.index(port) + 1 % len(ports)
+            index = (ports.index(port) + 1) % len(ports)
         except ValueError:
             index = 0
 
