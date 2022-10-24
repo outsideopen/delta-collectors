@@ -96,8 +96,13 @@ def next_hydra():
         ports = result.get(protocol).get("ports", [])
         if len(ports) == 0:
             return (result["ip"], None)
+
         port = result.get(protocol).get("hydra_last_scanned_port", ports[0])
-        index = ports.index(port) + 1 % len(ports)
+
+        try:
+            index = ports.index(port) + 1 % len(ports)
+        except ValueError:
+            index = 0
 
         return (result["ip"], ports[index])
 
