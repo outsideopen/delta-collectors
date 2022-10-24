@@ -9,7 +9,7 @@ from delta import scratch
 from delta.collector_queue import q
 from delta.collectors.collector import Collector
 
-INTERFACE = os.environ.get("DELTA_NETWORK_INTERFACE") or "wlan0"
+INTERFACE = os.environ.get("DELTA_NETWORK_INTERFACE") or "eth0"
 PASSWORDS = "./data/hydra/common-passwords-short.txt"
 USER_LIST = "./data/hydra/user-list.txt"
 SNMP_WORD_LIST = "./data/hydra/snmp-word-list-short.txt"
