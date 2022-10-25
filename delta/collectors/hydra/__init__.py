@@ -9,10 +9,12 @@ from delta import scratch
 from delta.collector_queue import q
 from delta.collectors.collector import Collector
 
+DELAY = os.environ.get("DELTA_HYDRA_DELAY") or "1"
+TASKS = os.environ.get("DELTA_HYDRA_TASKS") or "1"
 INTERFACE = os.environ.get("DELTA_NETWORK_INTERFACE") or "eth0"
 PASSWORDS = "./data/hydra/common-passwords-short.txt"
-USER_LIST = "./data/hydra/user-list.txt"
 SNMP_WORD_LIST = "./data/hydra/snmp-word-list-short.txt"
+USER_LIST = "./data/hydra/user-list.txt"
 
 SSH_PORTS = "22"
 SNMP_PORTS = "161"
@@ -77,7 +79,7 @@ class Hydra(Collector):
             )
 
             if port in SSH_PORTS:
-                command = f"hydra -I -L {USER_LIST} -P {PASSWORDS} {ip} ssh 2>&1"
+                command = f"hydra -c {DELAY} -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} {ip} ssh 2>&1"
                 self.logger.debug(command)
                 output = subprocess.run(
                     command, shell=True, stdout=subprocess.PIPE
@@ -88,7 +90,7 @@ class Hydra(Collector):
                 return parsed_output
 
             if port in SNMP_PORTS:
-                command = f"hydra -I -P {SNMP_WORD_LIST} {ip} snmp 2>&1"
+                command = f"hydra -c {DELAY} -t {TASKS} -I -P {SNMP_WORD_LIST} {ip} snmp 2>&1"
                 output = subprocess.run(
                     command, shell=True, stdout=subprocess.PIPE
                 ).stdout.decode("utf-8")
