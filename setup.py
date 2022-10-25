@@ -19,5 +19,10 @@ setup(
     description="Delta Collectors",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    install_requires=[
+        "colorlog",
+        "python3-nmap",
+        "requests",
+    ],
     platforms=["linux"],
 )
