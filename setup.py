@@ -21,6 +21,7 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=[
         "colorlog",
+        "persistQueue",
         "python3-nmap",
         "requests",
     ],
