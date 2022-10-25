@@ -67,16 +67,16 @@ class Hydra(Collector):
 
     def __hydra__(self, ip, port):
         try:
-            # connect to subnet, use X.X.X.227 because it is rarely used
-            my_subnet_ip = "{}.227".format(re.sub(r"\.\d+$", "", ip))
+            # # connect to subnet, use X.X.X.227 because it is rarely used
+            # my_subnet_ip = "{}.227".format(re.sub(r"\.\d+$", "", ip))
 
-            self.logger.debug(f"Join {ip} network, with IP {my_subnet_ip}")
+            # self.logger.debug(f"Join {ip} network, with IP {my_subnet_ip}")
 
-            subprocess.run(
-                f"ifconfig {INTERFACE}:1 {my_subnet_ip}",
-                shell=True,
-                stdout=subprocess.PIPE,
-            )
+            # subprocess.run(
+            #     f"ifconfig {INTERFACE}:1 {my_subnet_ip}",
+            #     shell=True,
+            #     stdout=subprocess.PIPE,
+            # )
 
             if port in SSH_PORTS:
                 command = f"hydra -c {DELAY} -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} {ip} ssh 2>&1"
@@ -99,11 +99,12 @@ class Hydra(Collector):
                 parsed_output["target"] = ip
                 return parsed_output
         finally:
-            # disconnect from subnet
-            self.logger.debug(f"Release {ip} network, with IP {my_subnet_ip}")
-            subprocess.run(
-                f"ifconfig {INTERFACE}:1 down", shell=True, stdout=subprocess.PIPE
-            )
+            pass
+            # # disconnect from subnet
+            # self.logger.debug(f"Release {ip} network, with IP {my_subnet_ip}")
+            # subprocess.run(
+            #     f"ifconfig {INTERFACE}:1 down", shell=True, stdout=subprocess.PIPE
+            # )
 
     def parse_output(self, output):
         data = {}
