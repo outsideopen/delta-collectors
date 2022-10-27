@@ -21,3 +21,7 @@ dependencies = [
 
 [project.urls]
 Source = "https://github.com/outsideopen/delta-collectors"
+
+[project.scripts]
+delta = "delta:main"
+
