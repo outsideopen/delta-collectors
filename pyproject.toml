@@ -1,0 +1,23 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "delta"
+description="Delta Collectors"
+authors = [{name = "Outside Open Developers", email = "developers@outsideopen.com"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
+requires-python = ">=3.6"
+dynamic = ["version"]
+
+dependencies = [
+    "colorlog",
+    "persistQueue",
+    "python3-nmap",
+    "requests",
+]
+
+[project.urls]
+Source = "https://github.com/outsideopen/delta-collectors"
