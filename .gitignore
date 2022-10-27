@@ -8,6 +8,7 @@ scratch.json
 data.db
 data.db-shm
 data.db-wal
+delta.log
 
 .env
 build/

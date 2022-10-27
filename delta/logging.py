@@ -38,11 +38,9 @@ def getLogger(module):
         stream_handler.setFormatter(color_format)
         logger.addHandler(stream_handler)
 
-        # file_name = conf.get(
-        #     "logging", "logfile", fallback="/var/log/digital-hydrant/digital-hydrant.log"
-        # )
-        # if file_name:
-        #     file_handler = logging.FileHandler(file_name)
-        #     file_handler.setFormatter(color_format)
-        #     logger.addHandler(file_handler)
+        file_name = "delta.log"
+        if file_name:
+            file_handler = logging.FileHandler(file_name)
+            file_handler.setFormatter(color_format)
+            logger.addHandler(file_handler)
     return logger
