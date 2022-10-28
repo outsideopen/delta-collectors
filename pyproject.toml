@@ -9,7 +9,7 @@ authors = [{name = "Outside Open Developers", email = "developers@outsideopen.co
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 dynamic = ["version"]
 
 dependencies = [
