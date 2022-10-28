@@ -2,22 +2,30 @@ import os
 import re
 import subprocess
 from datetime import datetime
+from importlib import resources
 from threading import Semaphore
 from time import sleep
 
 from delta import scratch
 from delta.collector_queue import q
 from delta.collectors.collector import Collector
+from delta.collectors.hydra import data
 
 DELAY = os.environ.get("DELTA_HYDRA_DELAY") or "1"
 TASKS = os.environ.get("DELTA_HYDRA_TASKS") or "1"
-INTERFACE = os.environ.get("DELTA_NETWORK_INTERFACE") or "eth0"
-PASSWORDS = "./data/hydra/common-passwords-short.txt"
-SNMP_WORD_LIST = "./data/hydra/snmp-word-list-short.txt"
-USER_LIST = "./data/hydra/user-list.txt"
+INTERFACE = os.environ.get("DELTA_HYDRA_NETWORK_INTERFACE") or "eth0"
+PASSWORDS = os.environ.get("DELTA_HYDRA_PASSWORDS") or resources.path(
+    data, "common-passwords.txt"
+)
+SNMP_WORD_LIST = os.environ.get("DELTA_HYDRA_SNMP_WORD_LIST") or resources.path(
+    data, "snmp-word-list.txt"
+)
+USER_LIST = os.environ.get("DELTA_HYDRA_USER_LIST") or resources.path(
+    data, "user-list.txt"
+)
 
-SSH_PORTS = "22"
-SNMP_PORTS = "161"
+SSH_PORTS = os.environ.get("DELTA_HYDRA_SSH_PORTS") or "22"
+SNMP_PORTS = os.environ.get("DELTA_HYDRA_SNMP_PORTS") or "161"
 
 
 class Hydra(Collector):
@@ -86,16 +94,20 @@ class Hydra(Collector):
                 ).stdout.decode("utf-8")
 
                 parsed_output = self.parse_output(output)
+                parsed_output["service"] = "ssh"
                 parsed_output["target"] = ip
                 return parsed_output
 
             if port in SNMP_PORTS:
-                command = f"hydra -c {DELAY} -t {TASKS} -I -P {SNMP_WORD_LIST} {ip} snmp 2>&1"
+                command = (
+                    f"hydra -c {DELAY} -t {TASKS} -I -P {SNMP_WORD_LIST} {ip} snmp 2>&1"
+                )
                 output = subprocess.run(
                     command, shell=True, stdout=subprocess.PIPE
                 ).stdout.decode("utf-8")
 
                 parsed_output = self.parse_output(output)
+                parsed_output["service"] = "snmp"
                 parsed_output["target"] = ip
                 return parsed_output
         finally:
