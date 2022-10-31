@@ -1,3 +1,4 @@
+import ipaddress
 from datetime import datetime
 from threading import Semaphore
 from time import sleep
@@ -33,17 +34,19 @@ class Nmap(Collector):
                 (ip, protocol) = results
 
                 nmap = nmap3.NmapScanTechniques()
-                if protocol == 'tcp':
+                if protocol == "tcp":
                     output = nmap.nmap_tcp_scan(ip)
-                if protocol == 'udp':
+                if protocol == "udp":
                     output = nmap.nmap_udp_scan(ip)
 
-                self.logger.info(f"Output: {output}")
+                parsed_output = self.__parse_output__(output)
+
+                self.logger.info(f"Output: {parsed_output}")
 
                 q.put(
                     {
                         "collector": self.name,
-                        "content": output,
+                        "content": parsed_output,
                         "collectedAt": datetime.timestamp(datetime.now()) * 1000,
                     }
                 )
@@ -63,5 +66,36 @@ class Nmap(Collector):
 
         for port_entry in results.get(ip, {}).get("ports", []):
             if port_entry["state"] == "open":
-                open_ports.append(port_entry['portid'])
+                open_ports.append(port_entry["portid"])
         return open_ports
+
+    def __parse_output__(self, output):
+        parsed_output = {}
+
+        keys = output.keys()
+
+        ips = []
+        other_keys = []
+        for key in keys:
+            if self.__get_ip__(key):
+                ips.append(key)
+            else:
+                other_keys.append(key)
+
+        if len(ips) != 1:
+            raise Exception("Nmap results should contain exactly 1 IP!")
+
+        ip = ips[0]
+
+        parsed_output = output[ip]
+        parsed_output["ip"] = ip
+
+        return parsed_output
+
+    def __get_ip__(self, maybe_ip):
+        try:
+            ipaddress.ip_address(maybe_ip)
+            return True
+
+        except ValueError:
+            return False
