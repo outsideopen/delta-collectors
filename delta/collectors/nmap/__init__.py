@@ -82,13 +82,14 @@ class Nmap(Collector):
             else:
                 other_keys.append(key)
 
-        if len(ips) != 1:
-            raise Exception("Nmap results should contain exactly 1 IP!")
+        if len(ips) > 1:
+            raise Exception("Nmap results should not contain more than 1 IP!")
 
-        ip = ips[0]
+        ip = ips[0] if ips else None
 
-        parsed_output = output[ip]
-        parsed_output["ip"] = ip
+        if ip:
+            parsed_output = output[ip]
+            parsed_output["ip"] = ip
 
         return parsed_output
 
