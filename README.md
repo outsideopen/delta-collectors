@@ -1,7 +1,7 @@
 # delta-collectors
 Nextgen collectors
 
-# Run
+# Configuration
 
 You need to have [docker installed](https://docs.docker.com/engine/install/) on your system.
 
@@ -15,8 +15,7 @@ DELTA_HYDRA_DELAY=1
 DELTA_HYDRA_TASKS=1
 ```
 
-Run using the following command
-
+# Run Manually
 ```bash
 # Download the latest version of the container
 docker pull outsideopen/delta-collectors:latest
@@ -29,3 +28,25 @@ docker run --network host -d --env-file .env -v $PWD:/app/data outsideopen/delta
 # --env-file .env   -> Set environment variables file (see README for details)
 # -v $PWD:/app/data -> Mount /app/data in the container to the current directory on the host
 ```
+
+# Run automatically with Systemd
+
+Create the file `/etc/systemd/system/delta.service` and copy the following contents (modify as needed).
+
+```
+[Unit]
+Description=Delta
+
+[Service]
+Type=simple
+WorkingDirectory=/home/hydrant/delta
+Environment="VERSION=0.0.3"
+ExecStart=docker run --network host --env-file .env  -v /home/hydrant/delta:/app/data outsideopen/delta-collectors:${VERSION}
+
+[Install]
+WantedBy=multi-user.target
+```
+
+`systemctl enable delta.service`
+
+`systemctl start delta.service`
