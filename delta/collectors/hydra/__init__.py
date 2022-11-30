@@ -24,8 +24,11 @@ USER_LIST = os.environ.get("DELTA_HYDRA_USER_LIST") or resources.path(
     data, "user-list.txt"
 )
 
-SSH_PORTS = os.environ.get("DELTA_HYDRA_SSH_PORTS") or "22"
+SERVICES = os.environ.get("SERVICES") or "ssh snmp rdp"
+
+RDP_PORTS = os.environ.get("DELTA_HYDRA_RDP_PORTS") or "3389"
 SNMP_PORTS = os.environ.get("DELTA_HYDRA_SNMP_PORTS") or "161"
+SSH_PORTS = os.environ.get("DELTA_HYDRA_SSH_PORTS") or "22"
 
 
 class Hydra(Collector):
@@ -73,6 +76,26 @@ class Hydra(Collector):
         finally:
             Hydra.semaphore.release()
 
+    def __ports__(self, service):
+        if(service == "rdp"):
+            return RDP_PORTS.split()
+        elif(service == "snmp"):
+            return SNMP_PORTS.split()
+        elif(service == "ssh"):
+            return SSH_PORTS.split()
+        else:
+            return []
+
+    def __command__(self, service, ip, port):
+        if(service == "rdp"):
+            return f"hydra -c {DELAY} -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} -s {port} {ip} rdp 2>&1"
+        elif(service == "snmp"):
+            return f"hydra -c {DELAY} -t {TASKS} -I -P {SNMP_WORD_LIST} -s {port} {ip} snmp 2>&1"
+        elif(service == "ssh"):
+            return f"hydra -c {DELAY} -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} -s {port} {ip} ssh 2>&1"
+        else:
+            return ""
+
     def __hydra__(self, ip, port):
         try:
             # # connect to subnet, use X.X.X.227 because it is rarely used
@@ -85,31 +108,23 @@ class Hydra(Collector):
             #     shell=True,
             #     stdout=subprocess.PIPE,
             # )
+            for service in SERVICES.split():
+                if port in self.__ports__(service):
+                    command = self.__command__(service, ip, port)
 
-            if port in SSH_PORTS:
-                command = f"hydra -c {DELAY} -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} {ip} ssh 2>&1"
-                self.logger.debug(command)
-                output = subprocess.run(
-                    command, shell=True, stdout=subprocess.PIPE
-                ).stdout.decode("utf-8")
+                    self.logger.debug(command)
 
-                parsed_output = self.parse_output(output)
-                parsed_output["service"] = "ssh"
-                parsed_output["target"] = ip
-                return parsed_output
+                    output = subprocess.run(
+                        command, shell=True, stdout=subprocess.PIPE
+                    ).stdout.decode("utf-8")
 
-            if port in SNMP_PORTS:
-                command = (
-                    f"hydra -c {DELAY} -t {TASKS} -I -P {SNMP_WORD_LIST} {ip} snmp 2>&1"
-                )
-                output = subprocess.run(
-                    command, shell=True, stdout=subprocess.PIPE
-                ).stdout.decode("utf-8")
+                    parsed_output = self.parse_output(output)
+                    parsed_output["service"] = service
+                    parsed_output["target"] = ip
+                    parsed_output["port"] = port
 
-                parsed_output = self.parse_output(output)
-                parsed_output["service"] = "snmp"
-                parsed_output["target"] = ip
-                return parsed_output
+                    return parsed_output
+
         finally:
             pass
             # # disconnect from subnet
