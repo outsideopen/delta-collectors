@@ -56,17 +56,29 @@ def next_nmap():
         return (sorted_udp[0]["ip"], "udp")
 
 
-def add_nmap_results(ip, protocol, ports):
+def add_nmap_results(ip, protocol, ports, state):
     results = read_file()
 
-    for result in results:
-        if ip == result["ip"]:
-            result[protocol]["ports"] = ports
-            result[protocol]["nmap_last_scanned"] = (
-                datetime.timestamp(datetime.now()) * 1000
-            )
+    if state == "down":
+        for result in results:
+            if ip == result["ip"]:
+                result[protocol]["nmap_last_scanned_state"] = state
+                result[protocol]["nmap_last_scanned"] = (
+                    datetime.timestamp(datetime.now()) * 1000
+                )
+        write_file(results)
 
-    write_file(results)
+    else:
+
+        for result in results:
+            if ip == result["ip"]:
+                result[protocol]["ports"] = ports
+                result[protocol]["nmap_last_scanned_state"] = state
+                result[protocol]["nmap_last_scanned"] = (
+                    datetime.timestamp(datetime.now()) * 1000
+                )
+
+        write_file(results)
 
 
 def next_hydra():

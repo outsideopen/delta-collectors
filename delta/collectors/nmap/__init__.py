@@ -51,8 +51,9 @@ class Nmap(Collector):
                     }
                 )
 
+                state = parsed_output['state']['state']
                 ports = self.__open_ports__(output, ip)
-                scratch.add_nmap_results(ip, protocol, ports)
+                scratch.add_nmap_results(ip, protocol, ports, state)
             else:
                 sleep(10)
 
