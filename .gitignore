@@ -13,3 +13,5 @@ delta.log
 .env
 build/
 dist/
+
+hydra.restore
