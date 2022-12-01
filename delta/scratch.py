@@ -62,6 +62,9 @@ def add_nmap_results(ip, protocol, ports, state):
     if state == "down":
         for result in results:
             if ip == result["ip"]:
+                if(not result[protocol]["ports"]):
+                    result[protocol]["ports"] = []
+
                 result[protocol]["nmap_last_scanned_state"] = state
                 result[protocol]["nmap_last_scanned"] = (
                     datetime.timestamp(datetime.now()) * 1000
@@ -129,8 +132,6 @@ def update_hydra_last_scan(ip, port):
                 ports = result.get(protocol, {}).get("ports")
 
                 if ports is not None:
-                    logger.debug(ports)
-                    logger.debug(port)
                     if not port:
                         result[protocol]["hydra_last_scanned"] = (
                             datetime.timestamp(datetime.now()) * 1000
