@@ -1,0 +1,28 @@
+version: "3.4"
+
+services:
+  hydrant:
+    env_file: .env
+    image: "outsideopen/delta-collectors:${DELTA_VERSION:-latest}"
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+    network_mode: "host"
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+
+  canary:
+    env_file: .env
+    image: "outsideopen/opencanary:${CANARY_VERSION:-latest}"
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+    ports:
+      - "21:21"
+      - "80:80"
+    restart: unless-stopped
+    volumes:
+      - ./opencanary.conf:/opencanary/opencanary.conf
