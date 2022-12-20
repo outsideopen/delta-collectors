@@ -17,4 +17,7 @@ fi
 curl https://raw.githubusercontent.com/outsideopen/delta-collectors/HEAD/docker-compose.yml -O
 curl https://raw.githubusercontent.com/outsideopen/delta-collectors/HEAD/opencanary.conf -O
 
-sudo docker-compose up -d
+echo "Run the following commands to start Delta"
+echo "-----------------------------------------"
+echo "cd ${$DIR}"
+echo "sudo docker-compose up -d"
