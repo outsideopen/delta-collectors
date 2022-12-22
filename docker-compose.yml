@@ -5,9 +5,9 @@ services:
     env_file: .env
     image: "ghcr.io/outsideopen/delta-collectors:${DELTA_VERSION:-latest}"
     logging:
-      driver: local
+      driver: json-file
       options:
-        max-size: 10m
+        max-size: 100m
     network_mode: "host"
     restart: unless-stopped
     volumes:
@@ -17,9 +17,9 @@ services:
     env_file: .env
     image: "ghcr.io/outsideopen/opencanary:${CANARY_VERSION:-latest}"
     logging:
-      driver: local
+      driver: json-file
       options:
-        max-size: 10m
+        max-size: 100m
     ports:
       - "21:21"
       - "80:80"
