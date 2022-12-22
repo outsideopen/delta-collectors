@@ -4,20 +4,28 @@ set -u
 
 DIR=$HOME/delta
 
-mkdir $DIR
-mkdir $DIR/data
+mkdir -p $DIR
+mkdir -p $DIR/data
 
 cd ${DIR}
 
 if [ ! -f "$DIR/.env" ]; then
-  printf "DELTA_API_TOKEN=<Token>\nDELTA_API_URL=https://stage.delta.outsideopen.dev" > ${DIR}/.env
+  printf "DELTA_API_URL=https://stage.delta.outsideopen.dev/api/upload\n" > ${DIR}/.env
 fi
-
 
 curl https://raw.githubusercontent.com/outsideopen/delta-collectors/HEAD/docker-compose.yml -O
 curl https://raw.githubusercontent.com/outsideopen/delta-collectors/HEAD/opencanary.conf -O
 
-echo "Run the following commands to start Delta"
-echo "-----------------------------------------"
-echo "cd ${$DIR}"
+echo ""
+echo "Follow these steps to start collecting"
+echo "--------------------------------------"
+echo "cd ${DIR}"
+echo ""
+echo "# Ensure that docker compose is installed"
+echo "sudo apt install docker-compose"
+echo ""
+echo "# Get an API token"
+echo "echo 'DELTA_API_TOKEN=[SUBSTITUE_TOKEN_VALUE_HERE]' >> ${DIR}/.env"
+echo ""
+echo "# Start the service"
 echo "sudo docker-compose up -d"
