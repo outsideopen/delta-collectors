@@ -7,7 +7,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: 10m
+        max-size: 100m
     network_mode: "host"
     restart: unless-stopped
     volumes:
@@ -19,7 +19,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: 10m
+        max-size: 100m
     ports:
       - "21:21"
       - "80:80"
