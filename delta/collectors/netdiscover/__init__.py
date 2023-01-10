@@ -1,6 +1,6 @@
 import re
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 from os import path
 from threading import Semaphore
 
@@ -9,9 +9,9 @@ from delta.collector_queue import q
 from delta.collectors.collector import Collector
 
 SUBNET_INDEX_FILENAME = ".netdiscover_subnet_index"
+SUBNET_LAST_RUN = ".netdiscover_subnet_last_run"
 INTERVAL = 100
 SUBNETS = [
-    "--localnet",
     "10.10.0.0/24",
     "192.168.0.0/24",
     "172.16.0.0/24",
@@ -46,7 +46,13 @@ class Netdiscover(Collector):
 
     @staticmethod
     def should_run():
-        return True
+        last_run = Netdiscover.get_subnet_last_run()
+        week_ago = (datetime.now() - timedelta(days=7)).timestamp()
+
+        if last_run < week_ago:
+            return True
+        else:
+            return False
 
     def run(self):
         try:
@@ -78,6 +84,9 @@ class Netdiscover(Collector):
                     scratch.add_ip(parsed_output["ip"])
 
             self.update_subnet_index((subnet_index + 1) % len(SUBNETS))
+            
+            if (subnet_index + 1) % len(SUBNETS) == 0:
+                Netdiscover.update_subnet_last_run()
 
         except Exception as e:
             self.logger.error(e, exc_info=True)
@@ -85,7 +94,6 @@ class Netdiscover(Collector):
             Netdiscover.semaphore.release()
 
     def get_subnet_index(self):
-
         if not path.isfile(SUBNET_INDEX_FILENAME):
             return 0
         else:
@@ -97,6 +105,22 @@ class Netdiscover(Collector):
     def update_subnet_index(self, subnet_index):
         with open(SUBNET_INDEX_FILENAME, "w") as f:
             f.write(str(subnet_index))
+            f.close()
+
+    @staticmethod
+    def get_subnet_last_run():
+        if not path.isfile(SUBNET_LAST_RUN):
+            return 0
+        else:
+            with open(SUBNET_LAST_RUN, "r") as f:
+                subnet_index = f.read()
+                f.close()
+                return float(subnet_index)
+
+    @staticmethod
+    def update_subnet_last_run():
+        with open(SUBNET_LAST_RUN, "w") as f:
+            f.write(str(datetime.now().timestamp()))
             f.close()
 
     def parse_line(self, line):
