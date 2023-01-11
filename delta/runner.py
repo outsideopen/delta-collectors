@@ -6,11 +6,11 @@ from time import sleep
 
 import delta.collectors
 from delta import logging
-
+from camel_converter import to_pascal
 
 class Runner:
     def __init__(self):
-        self.__nr_of_threads__ = 3
+        self.__nr_of_threads__ = 4
         self.threads = []
         self.collector_names = []
         self.logger = logging.getLogger(f"{__name__}")
@@ -26,7 +26,7 @@ class Runner:
         __module__ = importlib.import_module(
             f".{name}", package=delta.collectors.__name__
         )
-        __class__ = getattr(__module__, name.capitalize())
+        __class__ = getattr(__module__, to_pascal(name))
         return __class__
 
     def runner(self):
@@ -52,5 +52,5 @@ class Runner:
                         self.jobqueue.put(instance.run)
 
                 sleep(1)
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             self.logger.info("Bye!")
