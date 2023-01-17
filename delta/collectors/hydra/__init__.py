@@ -30,6 +30,8 @@ RDP_PORTS = os.environ.get("DELTA_HYDRA_RDP_PORTS") or "3389"
 SNMP_PORTS = os.environ.get("DELTA_HYDRA_SNMP_PORTS") or "161"
 SSH_PORTS = os.environ.get("DELTA_HYDRA_SSH_PORTS") or "22"
 
+SHOULD_RUN = os.getenv("DELTA_HYDRA_SHOULD_RUN", default=True) in [True, "True", "true", "1"]
+
 
 class Hydra(Collector):
     semaphore = Semaphore()
@@ -43,7 +45,7 @@ class Hydra(Collector):
 
     @staticmethod
     def should_run():
-        return True
+        return SHOULD_RUN
 
     def run(self):
         try:
