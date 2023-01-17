@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 from datetime import datetime
@@ -8,6 +9,9 @@ from delta.collector_queue import q
 from delta.collectors.collector import Collector
 
 INTERVAL = 100
+
+SHOULD_RUN = os.getenv("DELTA_NETDISCOVER_LOCAL_SHOULD_RUN", default=True) in [True, "True", "true", "1"]
+
 
 class NetdiscoverLocal(Collector):
     semaphore = Semaphore()
@@ -21,7 +25,7 @@ class NetdiscoverLocal(Collector):
 
     @staticmethod
     def should_run():
-        return True
+        return SHOULD_RUN
 
     def run(self):
         try:

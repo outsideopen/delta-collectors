@@ -1,7 +1,7 @@
 import re
 import subprocess
 from datetime import datetime, timedelta
-from os import path
+import os
 from threading import Semaphore
 
 from delta import scratch
@@ -33,6 +33,7 @@ SUBNETS = [
     "10.0.0.0/24",
 ]
 
+SHOULD_RUN = os.getenv("DELTA_NETDISCOVER_SHOULD_RUN", default=True) in [True, "True", "true", "1"]
 
 class Netdiscover(Collector):
     semaphore = Semaphore()
@@ -50,7 +51,7 @@ class Netdiscover(Collector):
         week_ago = (datetime.now() - timedelta(days=7)).timestamp()
 
         if last_run < week_ago:
-            return True
+            return SHOULD_RUN
         else:
             return False
 
@@ -94,7 +95,7 @@ class Netdiscover(Collector):
             Netdiscover.semaphore.release()
 
     def get_subnet_index(self):
-        if not path.isfile(SUBNET_INDEX_FILENAME):
+        if not os.path.isfile(SUBNET_INDEX_FILENAME):
             return 0
         else:
             with open(SUBNET_INDEX_FILENAME, "r") as f:
@@ -109,7 +110,7 @@ class Netdiscover(Collector):
 
     @staticmethod
     def get_subnet_last_run():
-        if not path.isfile(SUBNET_LAST_RUN):
+        if not os.path.isfile(SUBNET_LAST_RUN):
             return 0
         else:
             with open(SUBNET_LAST_RUN, "r") as f:

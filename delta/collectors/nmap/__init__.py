@@ -1,4 +1,5 @@
 import ipaddress
+import os
 from datetime import datetime
 from threading import Semaphore
 from time import sleep
@@ -8,6 +9,8 @@ import nmap3
 from delta import scratch
 from delta.collector_queue import q
 from delta.collectors.collector import Collector
+
+SHOULD_RUN = os.getenv("DELTA_NMAP_SHOULD_RUN", default=True) in [True, "True", "true", "1"]
 
 
 class Nmap(Collector):
@@ -22,7 +25,7 @@ class Nmap(Collector):
 
     @staticmethod
     def should_run():
-        return True
+        return SHOULD_RUN
 
     def run(self):
         try:
@@ -51,7 +54,7 @@ class Nmap(Collector):
                     }
                 )
 
-                state = parsed_output['state']['state']
+                state = parsed_output["state"]["state"]
                 ports = self.__open_ports__(output, ip)
                 scratch.add_nmap_results(ip, protocol, ports, state)
             else:
