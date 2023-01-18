@@ -52,7 +52,8 @@ class Hydra(Collector):
     def run(self):
         try:
             self.logger.debug(f"{self.name} running...")
-            next = scratch.next_hydra()
+            
+            next = scratch.next_hydra(scratch.read_file())
 
             self.logger.debug(f"hydra input: {next}")
             if next:

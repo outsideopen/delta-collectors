@@ -84,9 +84,7 @@ def add_nmap_results(ip, protocol, ports, state):
         write_file(results)
 
 
-def next_hydra():
-    results = read_file()
-
+def next_hydra(results):
     if len(results) == 0:
         return None
 
