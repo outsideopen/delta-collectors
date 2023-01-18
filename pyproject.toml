@@ -16,6 +16,7 @@ dependencies = [
     "camel-converter",
     "colorlog",
     "persistQueue",
+    "pyroute2",
     "python3-nmap",
     "requests",
 ]
