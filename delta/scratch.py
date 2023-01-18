@@ -58,29 +58,16 @@ def next_nmap(results):
 def add_nmap_results(ip, protocol, ports, state):
     results = read_file()
 
-    if state == "down":
-        for result in results:
-            if ip == result["ip"]:
-                if not result[protocol]["ports"]:
-                    result[protocol]["ports"] = []
-
-                result[protocol]["nmap_last_scanned_state"] = state
-                result[protocol]["nmap_last_scanned"] = (
-                    datetime.timestamp(datetime.now()) * 1000
-                )
-        write_file(results)
-
-    else:
-
-        for result in results:
-            if ip == result["ip"]:
-                result[protocol]["ports"] = ports
-                result[protocol]["nmap_last_scanned_state"] = state
-                result[protocol]["nmap_last_scanned"] = (
-                    datetime.timestamp(datetime.now()) * 1000
-                )
-
-        write_file(results)
+    for result in results:
+        if ip == result["ip"]:
+            result[protocol]["ports"] = (
+                ports if result.get(protocol, {}).get("ports", []) else []
+            )
+            result[protocol]["nmap_last_scanned_state"] = state
+            result[protocol]["nmap_last_scanned"] = (
+                datetime.timestamp(datetime.now()) * 1000
+            )
+    write_file(results)
 
 
 def next_hydra(results):
@@ -132,7 +119,7 @@ def update_hydra_last_scan(ip, protocol, port):
                 )
                 write_file(results)
 
-            if port in ports:
+            elif port in ports:
                 result[protocol]["hydra_last_scanned_port"] = port
 
                 if ports.index(port) >= len(ports) - 1:
