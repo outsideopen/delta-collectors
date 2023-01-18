@@ -40,13 +40,16 @@ def next_nmap(results):
     if len(results) == 0:
         return None
 
-    sorted_tcp = sorted(results, key=lambda e: (e.get("tcp", {}).get("nmap_last_scanned", 0), e["ip"]))
-    sorted_udp = sorted(results, key=lambda e: (e.get("udp", {}).get("nmap_last_scanned", 0), e["ip"]))
+    sorted_tcp = sorted(
+        results, key=lambda e: (e.get("tcp", {}).get("nmap_last_scanned", 0), e["ip"])
+    )
+    sorted_udp = sorted(
+        results, key=lambda e: (e.get("udp", {}).get("nmap_last_scanned", 0), e["ip"])
+    )
 
-    if (
-        sorted_tcp[0].get("tcp", {}).get("nmap_last_scanned", 0)
-        <= sorted_udp[0].get("udp", {}).get("nmap_last_scanned", 0)
-    ):
+    if sorted_tcp[0].get("tcp", {}).get("nmap_last_scanned", 0) <= sorted_udp[0].get(
+        "udp", {}
+    ).get("nmap_last_scanned", 0):
         return (sorted_tcp[0]["ip"], "tcp")
     else:
         return (sorted_udp[0]["ip"], "udp")
@@ -138,8 +141,9 @@ def update_hydra_last_scan(ip, protocol, port):
                     )
                 write_file(results)
             else:
-                raise Exception(f'Trying to scan port {port}, on host {ip}, but it is not in the available ports list: {ports}')
-
+                raise Exception(
+                    f"Trying to scan port {port}, on host {ip}, but it is not in the available ports list: {ports}"
+                )
 
 
 def write_file(json_object):

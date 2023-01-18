@@ -32,7 +32,12 @@ RDP_PORTS = os.environ.get("DELTA_HYDRA_RDP_PORTS") or "3389"
 SNMP_PORTS = os.environ.get("DELTA_HYDRA_SNMP_PORTS") or "161"
 SSH_PORTS = os.environ.get("DELTA_HYDRA_SSH_PORTS") or "22"
 
-SHOULD_RUN = os.getenv("DELTA_HYDRA_SHOULD_RUN", default=True) in [True, "True", "true", "1"]
+SHOULD_RUN = os.getenv("DELTA_HYDRA_SHOULD_RUN", default=True) in [
+    True,
+    "True",
+    "true",
+    "1",
+]
 
 
 class Hydra(Collector):
@@ -52,7 +57,7 @@ class Hydra(Collector):
     def run(self):
         try:
             self.logger.debug(f"{self.name} running...")
-            
+
             next = scratch.next_hydra(scratch.read_file())
 
             self.logger.debug(f"hydra input: {next}")
