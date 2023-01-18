@@ -6,6 +6,8 @@ from importlib import resources
 from threading import Semaphore
 from time import sleep
 
+from pyroute2 import NDB
+
 from delta import scratch
 from delta.collector_queue import q
 from delta.collectors.collector import Collector
@@ -79,42 +81,52 @@ class Hydra(Collector):
             Hydra.semaphore.release()
 
     def __ports__(self, service):
-        if(service == "rdp"):
+        if service == "rdp":
             return RDP_PORTS.split()
-        elif(service == "snmp"):
+        elif service == "snmp":
             return SNMP_PORTS.split()
-        elif(service == "ssh"):
+        elif service == "ssh":
             return SSH_PORTS.split()
         else:
             return []
 
     def __command__(self, service, ip, port):
-        if(service == "rdp"):
+        if service == "rdp":
             return f"hydra -c {DELAY} -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} -s {port} {ip} rdp 2>&1"
-        elif(service == "snmp"):
+        elif service == "snmp":
             return f"hydra -c {DELAY} -t {TASKS} -I -P {SNMP_WORD_LIST} -s {port} {ip} snmp 2>&1"
-        elif(service == "ssh"):
+        elif service == "ssh":
             return f"hydra -c {DELAY} -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} -s {port} {ip} ssh 2>&1"
         else:
             return ""
 
+    def __my_ip__(self):
+        with NDB() as ndb:
+            with ndb.interfaces[INTERFACE] as interface:
+                tuple = interface.ipaddr.summary()[0]
+                return tuple["address"]
+
     def __hydra__(self, ip, port):
+        my_subnet_ip = None
+        my_ip = self.__my_ip__()
+
+        # Only works for ipv4
+        if re.sub(r"\.\d+$", "", ip) != re.sub(r"\.\d+$", "", my_ip):
+            # connect to subnet, use X.X.X.227 because it is rarely used
+            my_subnet_ip = "{}.227".format(re.sub(r"\.\d+$", "", ip))
+
         try:
-            # # connect to subnet, use X.X.X.227 because it is rarely used
-            # my_subnet_ip = "{}.227".format(re.sub(r"\.\d+$", "", ip))
+            if my_subnet_ip:
+                with NDB() as ndb:
+                    with ndb.interfaces[INTERFACE] as interface:
+                        interface.add_ip("{}/24".format(my_subnet_ip))
+                        self.logger.debug(f"Adding IP address: {my_subnet_ip}")
 
-            # self.logger.debug(f"Join {ip} network, with IP {my_subnet_ip}")
-
-            # subprocess.run(
-            #     f"ifconfig {INTERFACE}:1 {my_subnet_ip}",
-            #     shell=True,
-            #     stdout=subprocess.PIPE,
-            # )
             for service in SERVICES.split():
                 if port in self.__ports__(service):
                     command = self.__command__(service, ip, port)
 
-                    self.logger.debug(command)
+                    self.logger.debug(f"Command to run: {command}")
 
                     output = subprocess.run(
                         command, shell=True, stdout=subprocess.PIPE
@@ -128,12 +140,11 @@ class Hydra(Collector):
                     return parsed_output
 
         finally:
-            pass
-            # # disconnect from subnet
-            # self.logger.debug(f"Release {ip} network, with IP {my_subnet_ip}")
-            # subprocess.run(
-            #     f"ifconfig {INTERFACE}:1 down", shell=True, stdout=subprocess.PIPE
-            # )
+            if my_subnet_ip:
+                with NDB() as ndb:
+                    with ndb.interfaces[INTERFACE] as interface:
+                        interface.del_ip("{}/24".format(my_subnet_ip))
+                        self.logger.debug(f"Releasing IP address: {my_subnet_ip}")
 
     def parse_output(self, output):
         data = {}
