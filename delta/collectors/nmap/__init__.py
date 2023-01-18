@@ -10,7 +10,12 @@ from delta import scratch
 from delta.collector_queue import q
 from delta.collectors.collector import Collector
 
-SHOULD_RUN = os.getenv("DELTA_NMAP_SHOULD_RUN", default=True) in [True, "True", "true", "1"]
+SHOULD_RUN = os.getenv("DELTA_NMAP_SHOULD_RUN", default=True) in [
+    True,
+    "True",
+    "true",
+    "1",
+]
 
 
 class Nmap(Collector):
@@ -31,7 +36,7 @@ class Nmap(Collector):
         try:
             self.logger.debug(f"{self.name} running...")
 
-            results = scratch.next_nmap()
+            results = scratch.next_nmap(scratch.read_file())
             if results:
                 self.logger.debug(f"nmap input: {results}")
                 (ip, protocol) = results

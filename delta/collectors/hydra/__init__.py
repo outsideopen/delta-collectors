@@ -57,9 +57,9 @@ class Hydra(Collector):
 
             self.logger.debug(f"hydra input: {next}")
             if next:
-                (ip, port) = next
+                (ip, protocol, port) = next
                 if not port:
-                    scratch.update_hydra_last_scan(ip, port)
+                    scratch.update_hydra_last_scan(ip, protocol, port)
                     return
 
                 self.logger.debug(f"{ip}, {port}")
@@ -72,7 +72,7 @@ class Hydra(Collector):
                             "collectedAt": datetime.timestamp(datetime.now()) * 1000,
                         }
                     )
-                scratch.update_hydra_last_scan(ip, port)
+                scratch.update_hydra_last_scan(ip, protocol, port)
             else:
                 sleep(10)
 
