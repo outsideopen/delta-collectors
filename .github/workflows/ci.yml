@@ -1,0 +1,23 @@
+name: CI
+on:
+  push:
+    branches-ignore:
+      - main
+  pull_request:
+    types:
+      - closed
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python:
+          - "3.10"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install flit
+      - run: flit install --deps all --symlink
+      - run: pytest

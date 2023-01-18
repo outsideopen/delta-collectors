@@ -33,7 +33,13 @@ SUBNETS = [
     "10.0.0.0/24",
 ]
 
-SHOULD_RUN = os.getenv("DELTA_NETDISCOVER_SHOULD_RUN", default=True) in [True, "True", "true", "1"]
+SHOULD_RUN = os.getenv("DELTA_NETDISCOVER_SHOULD_RUN", default=True) in [
+    True,
+    "True",
+    "true",
+    "1",
+]
+
 
 class Netdiscover(Collector):
     semaphore = Semaphore()
@@ -85,7 +91,7 @@ class Netdiscover(Collector):
                     scratch.add_ip(parsed_output["ip"])
 
             self.update_subnet_index((subnet_index + 1) % len(SUBNETS))
-            
+
             if (subnet_index + 1) % len(SUBNETS) == 0:
                 Netdiscover.update_subnet_last_run()
 

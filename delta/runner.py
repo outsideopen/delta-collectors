@@ -8,6 +8,7 @@ import delta.collectors
 from delta import logging
 from camel_converter import to_pascal
 
+
 class Runner:
     def __init__(self):
         self.__nr_of_threads__ = 4

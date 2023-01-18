@@ -1,4 +1,5 @@
 import json
+import operator
 from datetime import datetime
 from os import path
 from threading import Semaphore
@@ -19,8 +20,6 @@ def add_ip(ip):
             {
                 "ip": ip,
                 "ip_last_found": datetime.timestamp(datetime.now()) * 1000,
-                "tcp": {"nmap_last_scanned": 0, "hydra_last_scanned": 0},
-                "udp": {"nmap_last_scanned": 0, "hydra_last_scanned": 0},
             }
         )
     else:
@@ -37,20 +36,20 @@ def get_ips():
     return [sub["ip"] for sub in contents]
 
 
-def next_nmap():
-    results = read_file()
-
+def next_nmap(results):
     if len(results) == 0:
         return None
 
-    # `or 0` put elements with None at the top of the sort
-    sorted_tcp = sorted(results, key=lambda e: (e["tcp"]["nmap_last_scanned"], e["ip"]))
-    sorted_udp = sorted(results, key=lambda e: (e["udp"]["nmap_last_scanned"], e["ip"]))
+    sorted_tcp = sorted(
+        results, key=lambda e: (e.get("tcp", {}).get("nmap_last_scanned", 0), e["ip"])
+    )
+    sorted_udp = sorted(
+        results, key=lambda e: (e.get("udp", {}).get("nmap_last_scanned", 0), e["ip"])
+    )
 
-    if (
-        sorted_tcp[0]["tcp"]["nmap_last_scanned"]
-        <= sorted_udp[0]["udp"]["nmap_last_scanned"]
-    ):
+    if sorted_tcp[0].get("tcp", {}).get("nmap_last_scanned", 0) <= sorted_udp[0].get(
+        "udp", {}
+    ).get("nmap_last_scanned", 0):
         return (sorted_tcp[0]["ip"], "tcp")
     else:
         return (sorted_udp[0]["ip"], "udp")
@@ -62,7 +61,7 @@ def add_nmap_results(ip, protocol, ports, state):
     if state == "down":
         for result in results:
             if ip == result["ip"]:
-                if(not result[protocol]["ports"]):
+                if not result[protocol]["ports"]:
                     result[protocol]["ports"] = []
 
                 result[protocol]["nmap_last_scanned_state"] = state
@@ -84,17 +83,15 @@ def add_nmap_results(ip, protocol, ports, state):
         write_file(results)
 
 
-def next_hydra():
-    results = read_file()
-
+def next_hydra(results):
     if len(results) == 0:
         return None
 
     tcp_results = sorted(
-        results, key=lambda e: (e["tcp"]["hydra_last_scanned"], e["ip"])
+        results, key=lambda e: (e.get("tcp", {}).get("hydra_last_scanned", 0), e["ip"])
     )
     udp_results = sorted(
-        results, key=lambda e: (e["udp"]["hydra_last_scanned"], e["ip"])
+        results, key=lambda e: (e.get("udp", {}).get("hydra_last_scanned", 0), e["ip"])
     )
 
     if (
@@ -107,49 +104,46 @@ def next_hydra():
         protocol = "udp"
         result = udp_results[0]
 
-    if result.get(protocol).get("nmap_last_scanned") > 0:
-        ports = result.get(protocol).get("ports", [])
-        if len(ports) == 0:
-            return (result["ip"], None)
+    ports = result.get(protocol).get("ports", [])
+    if len(ports) == 0:
+        return (result["ip"], protocol, None)
 
-        port = result.get(protocol).get("hydra_last_scanned_port", ports[0])
+    port = result.get(protocol).get("hydra_last_scanned_port", ports[0])
 
-        try:
-            index = (ports.index(port) + 1) % len(ports)
-        except ValueError:
-            index = 0
+    try:
+        index = (ports.index(port) + 1) % len(ports)
+    except ValueError:
+        index = 0
 
-        return (result["ip"], ports[index])
+    return (result["ip"], protocol, ports[index])
 
 
-def update_hydra_last_scan(ip, port):
+def update_hydra_last_scan(ip, protocol, port):
     results = read_file()
 
     for result in results:
         if ip == result["ip"]:
 
-            for protocol in ("tcp", "udp"):
-                ports = result.get(protocol, {}).get("ports")
+            ports = result.get(protocol, {}).get("ports", [])
 
-                if ports is not None:
-                    if not port:
-                        result[protocol]["hydra_last_scanned"] = (
-                            datetime.timestamp(datetime.now()) * 1000
-                        )
-                        write_file(results)
+            if not port:
+                result[protocol]["hydra_last_scanned"] = (
+                    datetime.timestamp(datetime.now()) * 1000
+                )
+                write_file(results)
 
-                    if port in ports:
-                        result[protocol]["hydra_last_scanned_port"] = port
+            if port in ports:
+                result[protocol]["hydra_last_scanned_port"] = port
 
-                        if ports.index(port) >= len(ports) - 1:
-                            result[protocol]["hydra_last_scanned"] = (
-                                datetime.timestamp(datetime.now()) * 1000
-                            )
-                        write_file(results)
-
-
-def to_dict():
-    return json.load(FILE_NAME)
+                if ports.index(port) >= len(ports) - 1:
+                    result[protocol]["hydra_last_scanned"] = (
+                        datetime.timestamp(datetime.now()) * 1000
+                    )
+                write_file(results)
+            else:
+                raise Exception(
+                    f"Trying to scan port {port}, on host {ip}, but it is not in the available ports list: {ports}"
+                )
 
 
 def write_file(json_object):
