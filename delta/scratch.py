@@ -60,9 +60,14 @@ def add_nmap_results(ip, protocol, ports, state):
 
     for result in results:
         if ip == result["ip"]:
-            result[protocol]["ports"] = (
-                ports if result.get(protocol, {}).get("ports", []) else []
-            )
+            if protocol not in result:
+                result[protocol] = {}
+
+            if "ports" not in results[protocol]:
+                result[protocol]["ports"] = []
+            else:
+                result[protocol]["ports"] = ports
+
             result[protocol]["nmap_last_scanned_state"] = state
             result[protocol]["nmap_last_scanned"] = (
                 datetime.timestamp(datetime.now()) * 1000
