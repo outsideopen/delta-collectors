@@ -9,6 +9,8 @@ services:
       options:
         max-size: 100m
     network_mode: "host"
+    cap_add:
+      - NET_ADMIN
     restart: unless-stopped
     volumes:
       - ./data:/app/data
