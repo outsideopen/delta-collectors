@@ -82,9 +82,19 @@ def next_hydra(results):
         results, key=lambda e: (e.get("udp", {}).get("hydra_last_scanned", 0), e["ip"])
     )
 
-    if (
-        tcp_results[0]["tcp"]["hydra_last_scanned"]
-        <= udp_results[0]["udp"]["hydra_last_scanned"]
+    oldest_tcp = tcp_results[0] if "tcp" in tcp_results[0] else None
+    oldest_udp = udp_results[0] if "udp" in udp_results[0] else None
+
+    if not oldest_tcp and not oldest_udp:
+        return None
+    if not oldest_tcp:
+        protocol = "udp"
+        result = oldest_udp
+    elif not oldest_udp:
+        protocol = "tcp"
+        result = tcp_results[0]
+    elif oldest_tcp["tcp"].get("hydra_last_scanned", 0) <= oldest_udp["udp"].get(
+        "hydra_last_scanned", 0
     ):
         protocol = "tcp"
         result = tcp_results[0]
@@ -92,11 +102,11 @@ def next_hydra(results):
         protocol = "udp"
         result = udp_results[0]
 
-    ports = result.get(protocol).get("ports", [])
+    ports = result[protocol].get("ports", [])
     if len(ports) == 0:
         return (result["ip"], protocol, None)
 
-    port = result.get(protocol).get("hydra_last_scanned_port", ports[0])
+    port = result[protocol].get("hydra_last_scanned_port", ports[0])
 
     try:
         index = (ports.index(port) + 1) % len(ports)
