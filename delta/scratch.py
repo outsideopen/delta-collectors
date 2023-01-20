@@ -55,19 +55,20 @@ def next_nmap(results):
         return (sorted_udp[0]["ip"], "udp")
 
 
-def add_nmap_results(ip, protocol, ports, state):
-    results = read_file()
-
+def update_nmap_results(results, ip, protocol, ports, state):
     for result in results:
         if ip == result["ip"]:
-            result[protocol]["ports"] = (
-                ports if result.get(protocol, {}).get("ports", []) else []
-            )
+            if protocol not in result:
+                result[protocol] = {}
+
+            result[protocol]["ports"] = ports if ports else []
+
             result[protocol]["nmap_last_scanned_state"] = state
             result[protocol]["nmap_last_scanned"] = (
                 datetime.timestamp(datetime.now()) * 1000
             )
-    write_file(results)
+
+    return results
 
 
 def next_hydra(results):
@@ -105,19 +106,16 @@ def next_hydra(results):
     return (result["ip"], protocol, ports[index])
 
 
-def update_hydra_last_scan(ip, protocol, port):
-    results = read_file()
+def update_hydra_last_scan(input, ip, protocol, port):
+    results = input.copy()
 
     for result in results:
         if ip == result["ip"]:
-
             ports = result.get(protocol, {}).get("ports", [])
-
             if not port:
                 result[protocol]["hydra_last_scanned"] = (
                     datetime.timestamp(datetime.now()) * 1000
                 )
-                write_file(results)
 
             elif port in ports:
                 result[protocol]["hydra_last_scanned_port"] = port
@@ -126,11 +124,12 @@ def update_hydra_last_scan(ip, protocol, port):
                     result[protocol]["hydra_last_scanned"] = (
                         datetime.timestamp(datetime.now()) * 1000
                     )
-                write_file(results)
+
             else:
                 raise Exception(
                     f"Trying to scan port {port}, on host {ip}, but it is not in the available ports list: {ports}"
                 )
+    return results
 
 
 def write_file(json_object):
