@@ -83,6 +83,14 @@ def test_next_hydra():
     # Empty scratch
     assert scratch.next_hydra([]) == None
 
+    # No tcp section
+    udp_1 = scratch_sub_entry()
+    assert scratch.next_hydra([scratch_entry(udp=udp_1)]) == (
+        "10.10.1.1",
+        "udp",
+        None,
+    )
+
     # No open ports
     tcp_1 = scratch_sub_entry()
     udp_1 = scratch_sub_entry()
@@ -97,7 +105,7 @@ def test_next_hydra():
     udp_1 = scratch_sub_entry(
         hydra_last_scanned=1, hydra_last_scanned_port="621", ports=["621", "622"]
     )
-    assert scratch.next_hydra([scratch_entry(tcp=tcp_1, udp=udp_1)]) == (
+    scratch.next_hydra([scratch_entry(tcp=tcp_1, udp=udp_1)]) == (
         "10.10.1.1",
         "udp",
         "622",
