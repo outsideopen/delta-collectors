@@ -61,7 +61,11 @@ class Nmap(Collector):
 
                 state = parsed_output["state"]["state"]
                 ports = self.__open_ports__(output, ip)
-                scratch.add_nmap_results(ip, protocol, ports, state)
+                json_input = scratch.read_file()
+                json_output = scratch.update_nmap_results(
+                    json_input, ip, protocol, ports, state
+                )
+                scratch.write_file(json_output)
             else:
                 sleep(10)
 

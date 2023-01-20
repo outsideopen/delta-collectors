@@ -64,7 +64,12 @@ class Hydra(Collector):
             if next:
                 (ip, protocol, port) = next
                 if not port:
-                    scratch.update_hydra_last_scan(ip, protocol, port)
+                    json_input = scratch.read_file()
+                    json_output = scratch.update_hydra_last_scan(
+                        json_input, ip, protocol, port
+                    )
+                    scratch.write_file(json_output)
+
                     return
 
                 self.logger.debug(f"{ip}, {port}")
@@ -77,7 +82,12 @@ class Hydra(Collector):
                             "collectedAt": datetime.timestamp(datetime.now()) * 1000,
                         }
                     )
-                scratch.update_hydra_last_scan(ip, protocol, port)
+
+                json_input = scratch.read_file()
+                json_output = scratch.update_hydra_last_scan(
+                    json_input, ip, protocol, port
+                )
+                scratch.write_file(json_output)
             else:
                 sleep(10)
 
