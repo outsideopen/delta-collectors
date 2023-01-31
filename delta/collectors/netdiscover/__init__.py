@@ -1,7 +1,8 @@
+import os
 import re
 import subprocess
+import traceback
 from datetime import datetime, timedelta
-import os
 from threading import Semaphore
 
 from delta import scratch
@@ -96,6 +97,18 @@ class Netdiscover(Collector):
                 Netdiscover.update_subnet_last_run()
 
         except Exception as e:
+            tb = traceback.format_exc()
+            q.put(
+                {
+                    "collector": "error",
+                    "content": {
+                        "collector": self.name,
+                        "message": str(e),
+                        "stacktrace": tb,
+                    },
+                    "collectedAt": datetime.timestamp(datetime.now()) * 1000,
+                }
+            )
             self.logger.error(e, exc_info=True)
         finally:
             Netdiscover.semaphore.release()

@@ -1,5 +1,6 @@
 import ipaddress
 import os
+import traceback
 from datetime import datetime
 from threading import Semaphore
 from time import sleep
@@ -70,6 +71,18 @@ class Nmap(Collector):
                 sleep(10)
 
         except Exception as e:
+            tb = traceback.format_exc()
+            q.put(
+                {
+                    "collector": "error",
+                    "content": {
+                        "collector": self.name,
+                        "message": str(e),
+                        "stacktrace": tb,
+                    },
+                    "collectedAt": datetime.timestamp(datetime.now()) * 1000,
+                }
+            )
             self.logger.error(e, exc_info=True)
         finally:
             Nmap.semaphore.release()
