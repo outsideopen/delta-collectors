@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+import traceback
 from datetime import datetime
 from importlib import resources
 from threading import Semaphore
@@ -92,6 +93,18 @@ class Hydra(Collector):
                 sleep(10)
 
         except Exception as e:
+            tb = traceback.format_exc()
+            q.put(
+                {
+                    "collector": "error",
+                    "content": {
+                        "collector": self.name,
+                        "message": str(e),
+                        "stacktrace": tb,
+                    },
+                    "collectedAt": datetime.timestamp(datetime.now()) * 1000,
+                }
+            )
             self.logger.error(e, exc_info=True)
         finally:
             Hydra.semaphore.release()
