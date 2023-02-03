@@ -3,7 +3,19 @@ Nextgen collectors
 
 # Dependencies
 
-- [Docker Compose](https://docs.docker.com/compose/install/)
+- [Docker Engine](https://docs.docker.com/get-docker/) `17.09.0+`
+- [Docker Compose](https://docs.docker.com/compose/install/) `1.17.0+`
+
+Docker images for `x86_64` and `arm64` architectures are provided.
+
+The following operating systems have been tested by our team
+
+| OS              | Version    | Architecture  |
+|-----------------|------------|---------------|
+| Ubuntu          | `20.04`    | `x86_64`      |
+| Raspberry Pi OS | `Bullseye` | `arm64`       |
+| Arch Linux      |            | `x86_64`      |
+
 
 # Install
 
