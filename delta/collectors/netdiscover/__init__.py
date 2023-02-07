@@ -45,9 +45,9 @@ class Netdiscover(Collector):
     @staticmethod
     def should_run():
         last_run = Netdiscover.get_last_run(LAST_RUN_FILE)
-        2_days_ago = (datetime.now() - timedelta(days=2)).timestamp()
+        two_days_ago = (datetime.now() - timedelta(days=2)).timestamp()
 
-        if last_run < 2_days_ago:
+        if last_run < two_days_ago:
             return SHOULD_RUN
         else:
             return False
