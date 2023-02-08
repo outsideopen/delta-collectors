@@ -30,7 +30,7 @@ def getLogger(module):
     )
 
     logger = logging.getLogger(module)
-    level = os.environ.get("DELTA_LOG_LEVEL") or "INFO"
+    level = os.getenv("DELTA_LOG_LEVEL", default="INFO")
     logger.setLevel(level.upper())
 
     if not logger.hasHandlers():

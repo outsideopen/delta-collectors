@@ -17,7 +17,7 @@ SHOULD_RUN = os.getenv("DELTA_WIFI_AUTH_SHOULD_RUN", default=True) in [
     "1",
 ]
 
-WIFI_SSID = os.getenv("DELTA_WIFI_SSID", default=None)
+WIFI_SSID = os.getenv("DELTA_WIFI_AUTH_SSID", default=None)
 
 
 class WifiAuth(Collector):
@@ -36,9 +36,9 @@ class WifiAuth(Collector):
             return False
 
         last_run = WifiAuth.get_last_run(LAST_RUN_FILE)
-        five_minutes_ago = (datetime.now() - timedelta(minutes=5)).timestamp()
+        minutes_ago = (datetime.now() - timedelta(minutes=5)).timestamp()
 
-        if last_run < five_minutes_ago:
+        if last_run < minutes_ago:
             return SHOULD_RUN
         else:
             return False
