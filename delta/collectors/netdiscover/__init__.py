@@ -10,7 +10,7 @@ from delta.collector_queue import q
 from delta.collectors.collector import Collector
 
 SUBNET_INDEX_FILENAME = ".netdiscover_subnet_index"
-SUBNET_LAST_RUN = ".netdiscover_subnet_last_run"
+LAST_RUN_FILE = ".netdiscover_subnet_last_run"
 INTERVAL = 100
 SUBNETS = [
     "10.10.0.0/24",
@@ -54,7 +54,7 @@ class Netdiscover(Collector):
 
     @staticmethod
     def should_run():
-        last_run = Netdiscover.get_subnet_last_run()
+        last_run = Netdiscover.get_last_run(LAST_RUN_FILE)
         week_ago = (datetime.now() - timedelta(days=7)).timestamp()
 
         if last_run < week_ago:
@@ -94,7 +94,7 @@ class Netdiscover(Collector):
             self.update_subnet_index((subnet_index + 1) % len(SUBNETS))
 
             if (subnet_index + 1) % len(SUBNETS) == 0:
-                Netdiscover.update_subnet_last_run()
+                Netdiscover.update_last_run(LAST_RUN_FILE)
 
         except Exception as e:
             tb = traceback.format_exc()
@@ -125,22 +125,6 @@ class Netdiscover(Collector):
     def update_subnet_index(self, subnet_index):
         with open(SUBNET_INDEX_FILENAME, "w") as f:
             f.write(str(subnet_index))
-            f.close()
-
-    @staticmethod
-    def get_subnet_last_run():
-        if not os.path.isfile(SUBNET_LAST_RUN):
-            return 0
-        else:
-            with open(SUBNET_LAST_RUN, "r") as f:
-                subnet_index = f.read()
-                f.close()
-                return float(subnet_index)
-
-    @staticmethod
-    def update_subnet_last_run():
-        with open(SUBNET_LAST_RUN, "w") as f:
-            f.write(str(datetime.now().timestamp()))
             f.close()
 
     def parse_line(self, line):

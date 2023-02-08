@@ -3,6 +3,8 @@ __pycache__
 
 # Ignore state files
 .netdiscover_subnet_index
+.netdiscover_subnet_last_run
+.wifi_auth_last_run
 scratch.json
 
 data.db
