@@ -16,13 +16,20 @@ from delta.collectors.hydra import data
 
 TASKS = os.getenv("DELTA_HYDRA_TASKS", default="1")
 INTERFACE = os.getenv("DELTA_HYDRA_NETWORK_INTERFACE", default="eth0")
-PASSWORDS = os.getenv("DELTA_HYDRA_PASSWORDS", default=resources.path(data, "common-passwords.txt"))
+PASSWORDS = os.getenv(
+    "DELTA_HYDRA_PASSWORDS", default=resources.path(data, "common-passwords.txt")
+)
 
-SNMP_WORD_LIST = os.getenv("DELTA_HYDRA_SNMP_WORD_LIST",
-                           default=resources.path(data, "snmp-word-list.txt"))
-USER_LIST = os.getenv("DELTA_HYDRA_USER_LIST", default=resources.path(data, "user-list.txt"))
+SNMP_WORD_LIST = os.getenv(
+    "DELTA_HYDRA_SNMP_WORD_LIST", default=resources.path(data, "snmp-word-list.txt")
+)
+USER_LIST = os.getenv(
+    "DELTA_HYDRA_USER_LIST", default=resources.path(data, "user-list.txt")
+)
 
-USER_LIST = os.getenv("DELTA_HYDRA_USER_LIST", default=resources.path(data, "user-list.txt"))
+USER_LIST = os.getenv(
+    "DELTA_HYDRA_USER_LIST", default=resources.path(data, "user-list.txt")
+)
 
 
 SERVICES = os.getenv("DELTA_HYDRA_SERVICES", default="ssh snmp rdp")
