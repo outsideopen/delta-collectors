@@ -11,9 +11,9 @@ from delta.collector_queue import q
 class Uploader:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.api_token = os.environ.get("DELTA_API_TOKEN")
-        self.api_url = (
-            os.environ.get("DELTA_API_URL") or "http://localhost:4000/api/upload"
+        self.api_token = os.getenv("DELTA_API_TOKEN", default=None)
+        self.api_url = os.getenv(
+            "DELTA_API_URL", default="http://localhost:4000/api/upload"
         )
 
     def uploader(self):

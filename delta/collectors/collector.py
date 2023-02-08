@@ -1,4 +1,6 @@
+import os
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 from delta import logging
 
@@ -22,3 +24,19 @@ class Collector(ABC):
     @abstractmethod
     def run(self):
         pass
+
+    @staticmethod
+    def get_last_run(file_name):
+        if not os.path.isfile(file_name):
+            return 0
+        else:
+            with open(file_name, "r") as f:
+                last_run = f.read()
+                f.close()
+                return float(last_run)
+
+    @staticmethod
+    def update_last_run(file_name):
+        with open(file_name, "w") as f:
+            f.write(str(datetime.now().timestamp()))
+            f.close()

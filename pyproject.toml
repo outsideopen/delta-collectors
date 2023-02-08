@@ -15,6 +15,7 @@ dynamic = ["version"]
 dependencies = [
     "camel-converter",
     "colorlog",
+    "dbus-python",
     "persistQueue",
     "pyroute2",
     "python3-nmap",

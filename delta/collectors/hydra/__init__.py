@@ -14,24 +14,29 @@ from delta.collector_queue import q
 from delta.collectors.collector import Collector
 from delta.collectors.hydra import data
 
-DELAY = os.environ.get("DELTA_HYDRA_DELAY") or "1"
-TASKS = os.environ.get("DELTA_HYDRA_TASKS") or "1"
-INTERFACE = os.environ.get("DELTA_HYDRA_NETWORK_INTERFACE") or "eth0"
-PASSWORDS = os.environ.get("DELTA_HYDRA_PASSWORDS") or resources.path(
-    data, "common-passwords.txt"
-)
-SNMP_WORD_LIST = os.environ.get("DELTA_HYDRA_SNMP_WORD_LIST") or resources.path(
-    data, "snmp-word-list.txt"
-)
-USER_LIST = os.environ.get("DELTA_HYDRA_USER_LIST") or resources.path(
-    data, "user-list.txt"
+TASKS = os.getenv("DELTA_HYDRA_TASKS", default="1")
+INTERFACE = os.getenv("DELTA_HYDRA_NETWORK_INTERFACE", default="eth0")
+PASSWORDS = os.getenv(
+    "DELTA_HYDRA_PASSWORDS", default=resources.path(data, "common-passwords.txt")
 )
 
-SERVICES = os.environ.get("SERVICES") or "ssh snmp rdp"
+SNMP_WORD_LIST = os.getenv(
+    "DELTA_HYDRA_SNMP_WORD_LIST", default=resources.path(data, "snmp-word-list.txt")
+)
+USER_LIST = os.getenv(
+    "DELTA_HYDRA_USER_LIST", default=resources.path(data, "user-list.txt")
+)
 
-RDP_PORTS = os.environ.get("DELTA_HYDRA_RDP_PORTS") or "3389"
-SNMP_PORTS = os.environ.get("DELTA_HYDRA_SNMP_PORTS") or "161"
-SSH_PORTS = os.environ.get("DELTA_HYDRA_SSH_PORTS") or "22"
+USER_LIST = os.getenv(
+    "DELTA_HYDRA_USER_LIST", default=resources.path(data, "user-list.txt")
+)
+
+
+SERVICES = os.getenv("DELTA_HYDRA_SERVICES", default="ssh snmp rdp")
+
+RDP_PORTS = os.getenv("DELTA_HYDRA_RDP_PORTS", default="3389")
+SNMP_PORTS = os.getenv("DELTA_HYDRA_SNMP_PORTS", default="161")
+SSH_PORTS = os.getenv("DELTA_HYDRA_SSH_PORTS", default="22")
 
 SHOULD_RUN = os.getenv("DELTA_HYDRA_SHOULD_RUN", default=True) in [
     True,
@@ -121,11 +126,11 @@ class Hydra(Collector):
 
     def __command__(self, service, ip, port):
         if service == "rdp":
-            return f"hydra -c {DELAY} -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} -s {port} {ip} rdp 2>&1"
+            return f"hydra -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} -s {port} {ip} rdp 2>&1"
         elif service == "snmp":
-            return f"hydra -c {DELAY} -t {TASKS} -I -P {SNMP_WORD_LIST} -s {port} {ip} snmp 2>&1"
+            return f"hydra -t {TASKS} -I -P {SNMP_WORD_LIST} -s {port} {ip} snmp 2>&1"
         elif service == "ssh":
-            return f"hydra -c {DELAY} -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} -s {port} {ip} ssh 2>&1"
+            return f"hydra -t {TASKS} -I -L {USER_LIST} -P {PASSWORDS} -s {port} {ip} ssh 2>&1"
         else:
             return ""
 
@@ -206,4 +211,5 @@ class Hydra(Collector):
                 data["error"] = line
         data["results"] = results
         data["vulnerable"] = None if (data["error"]) else len(results) > 0
+
         return data
