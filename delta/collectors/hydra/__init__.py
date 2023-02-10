@@ -210,6 +210,6 @@ class Hydra(Collector):
             elif line.startswith("[ERROR]"):
                 data["error"] = line
         data["results"] = results
-        data["vulnerable"] = None if (data["error"]) else len(results) > 0
+        data["vulnerable"] = None if (data.get("error", None)) else len(results) > 0
 
         return data
