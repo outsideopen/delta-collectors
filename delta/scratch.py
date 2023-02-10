@@ -1,5 +1,4 @@
 import json
-import operator
 from datetime import datetime
 from os import path
 from threading import Semaphore
@@ -157,8 +156,12 @@ def read_file():
     if not path.isfile(FILE_NAME):
         return []
 
+    lock.acquire()
+
     json_object = []
     with open(FILE_NAME, "r") as f:
         json_object = json.load(f)
+
+    lock.release()
 
     return json_object
