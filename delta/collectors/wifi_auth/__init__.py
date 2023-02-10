@@ -17,7 +17,7 @@ SHOULD_RUN = os.getenv("DELTA_WIFI_AUTH_SHOULD_RUN", default=True) in [
     "1",
 ]
 
-WIFI_SSID = os.getenv("DELTA_WIFI_AUTH_SSID", default=None)
+WIFI_SSIDS = os.getenv("DELTA_WIFI_AUTH_SSID", default="")
 
 
 class WifiAuth(Collector):
@@ -32,7 +32,7 @@ class WifiAuth(Collector):
 
     @staticmethod
     def should_run():
-        if not WIFI_SSID:
+        if not WIFI_SSIDS:
             return False
 
         last_run = WifiAuth.get_last_run(LAST_RUN_FILE)
@@ -45,23 +45,23 @@ class WifiAuth(Collector):
 
     def run(self):
         try:
-            ssid = WIFI_SSID
-            self.logger.debug(f"Connecting to wifi network: {ssid}")
-            tic = time.perf_counter()
-            Iwd.connect(ssid)
-            toc = time.perf_counter()
-            Iwd.disconnect(ssid)
+            for ssid in [ssid.strip() for ssid in WIFI_SSIDS.split(",")]:
+                self.logger.debug(f"Connecting to wifi network: {ssid}")
+                tic = time.perf_counter()
+                Iwd.connect(ssid)
+                toc = time.perf_counter()
+                Iwd.disconnect(ssid)
 
-            self.logger.debug(f"Disconnecting from wifi network: {ssid}")
+                self.logger.debug(f"Disconnecting from wifi network: {ssid}")
 
-            WifiAuth.update_last_run(LAST_RUN_FILE)
-            q.put(
-                {
-                    "collector": "wifi_auth",
-                    "content": {"ssid": ssid, "auth_time": toc - tic},
-                    "collectedAt": datetime.timestamp(datetime.now()) * 1000,
-                }
-            )
+                WifiAuth.update_last_run(LAST_RUN_FILE)
+                q.put(
+                    {
+                        "collector": "wifi_auth",
+                        "content": {"ssid": ssid, "auth_time": toc - tic},
+                        "collectedAt": datetime.timestamp(datetime.now()) * 1000,
+                    }
+                )
 
         except Exception as e:
             tb = traceback.format_exc()
