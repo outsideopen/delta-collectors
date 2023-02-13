@@ -4,6 +4,8 @@ import traceback
 from datetime import datetime, timedelta
 from threading import Semaphore
 
+import dbus
+
 from delta.collector_queue import q
 from delta.collectors.collector import Collector
 from delta.util.iwd import Iwd
@@ -62,6 +64,18 @@ class WifiAuth(Collector):
                         "collectedAt": datetime.timestamp(datetime.now()) * 1000,
                     }
                 )
+
+        except dbus.exceptions.DBusException as e:
+            q.put(
+                {
+                    "collector": "wifi_auth",
+                    "content": {"ssid": ssid, "auth_time": None},
+                    "collectedAt": datetime.timestamp(datetime.now()) * 1000,
+                }
+            )
+
+            self.logger.error(e.get_dbus_message())
+            self.logger.error(e, exc_info=True)
 
         except Exception as e:
             tb = traceback.format_exc()
