@@ -23,8 +23,6 @@ class Iwd:
             )
 
             network.Connect()
-        else:
-            raise Exception(f"Could not connect to wifi network: {ssid}")
 
     @staticmethod
     def disconnect(ssid):
@@ -45,8 +43,6 @@ class Iwd:
             )
 
             device.Disconnect()
-        else:
-            raise Exception(f"Could not disconnect from wifi network: {ssid}")
 
     @staticmethod
     def list_networks():
