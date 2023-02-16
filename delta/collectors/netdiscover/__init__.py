@@ -24,7 +24,7 @@ SUBNETS = [
     "192.168.254.0/24",
 ]
 
-SHOULD_RUN = os.getenv("DELTA_NETDISCOVER_SHOULD_RUN", default=True) in [
+ENABLED = os.getenv("DELTA_NETDISCOVER_ENABLED", default=True) in [
     True,
     "True",
     "true",
@@ -48,7 +48,7 @@ class Netdiscover(Collector):
         two_days_ago = (datetime.now() - timedelta(days=2)).timestamp()
 
         if last_run < two_days_ago:
-            return SHOULD_RUN
+            return ENABLED
         else:
             return False
 

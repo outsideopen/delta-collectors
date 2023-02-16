@@ -11,7 +11,7 @@ from delta.collectors.collector import Collector
 
 INTERVAL = 100
 
-SHOULD_RUN = os.getenv("DELTA_NETDISCOVER_LOCAL_SHOULD_RUN", default=True) in [
+ENABLED = os.getenv("DELTA_NETDISCOVER_LOCAL_ENABLED", default=True) in [
     True,
     "True",
     "true",
@@ -31,7 +31,7 @@ class NetdiscoverLocal(Collector):
 
     @staticmethod
     def should_run():
-        return SHOULD_RUN
+        return ENABLED
 
     def run(self):
         try:
