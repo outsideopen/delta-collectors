@@ -5,6 +5,7 @@ __pycache__
 .netdiscover_subnet_index
 .netdiscover_subnet_last_run
 .wifi_auth_last_run
+.wifi_signal_last_run
 scratch.json
 
 data.db

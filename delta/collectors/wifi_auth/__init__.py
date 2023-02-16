@@ -59,7 +59,7 @@ class WifiAuth(Collector):
                 WifiAuth.update_last_run(LAST_RUN_FILE)
                 q.put(
                     {
-                        "collector": "wifi_auth",
+                        "collector": self.name,
                         "content": {"ssid": ssid, "auth_time": toc - tic},
                         "collectedAt": datetime.timestamp(datetime.now()) * 1000,
                     }
@@ -68,13 +68,12 @@ class WifiAuth(Collector):
         except dbus.exceptions.DBusException as e:
             q.put(
                 {
-                    "collector": "wifi_auth",
+                    "collector": self.name,
                     "content": {"ssid": ssid, "auth_time": None},
                     "collectedAt": datetime.timestamp(datetime.now()) * 1000,
                 }
             )
 
-            self.logger.error(e.get_dbus_message())
             self.logger.error(e, exc_info=True)
 
         except Exception as e:
