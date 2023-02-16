@@ -92,6 +92,8 @@ class Iwd:
                         "net.connman.iwd.Station",
                     )
 
+                    station.Scan()
+
                     for path3, rssi in station.GetOrderedNetworks():
                         properties2 = objects[path3]["net.connman.iwd.Network"]
 
