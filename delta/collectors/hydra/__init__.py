@@ -38,7 +38,7 @@ RDP_PORTS = os.getenv("DELTA_HYDRA_RDP_PORTS", default="3389")
 SNMP_PORTS = os.getenv("DELTA_HYDRA_SNMP_PORTS", default="161")
 SSH_PORTS = os.getenv("DELTA_HYDRA_SSH_PORTS", default="22")
 
-SHOULD_RUN = os.getenv("DELTA_HYDRA_SHOULD_RUN", default=True) in [
+ENABLED = os.getenv("DELTA_HYDRA_ENABLED", default=True) in [
     True,
     "True",
     "true",
@@ -58,7 +58,7 @@ class Hydra(Collector):
 
     @staticmethod
     def should_run():
-        return SHOULD_RUN
+        return ENABLED
 
     def run(self):
         try:

@@ -11,7 +11,7 @@ from delta import scratch
 from delta.collector_queue import q
 from delta.collectors.collector import Collector
 
-SHOULD_RUN = os.getenv("DELTA_NMAP_SHOULD_RUN", default=True) in [
+ENABLED = os.getenv("DELTA_NMAP_ENABLED", default=True) in [
     True,
     "True",
     "true",
@@ -31,7 +31,7 @@ class Nmap(Collector):
 
     @staticmethod
     def should_run():
-        return SHOULD_RUN
+        return ENABLED
 
     def run(self):
         try:

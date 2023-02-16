@@ -12,7 +12,7 @@ from delta.util.iwd import Iwd
 
 LAST_RUN_FILE = ".wifi_signal_last_run"
 
-SHOULD_RUN = os.getenv("DELTA_WIFI_SIGNAL_SHOULD_RUN", default=True) in [
+ENABLED = os.getenv("DELTA_WIFI_SIGNAL_ENABLED", default=False) in [
     True,
     "True",
     "true",
@@ -36,7 +36,7 @@ class WifiSignal(Collector):
         minutes_ago = (datetime.now() - timedelta(minutes=5)).timestamp()
 
         if last_run < minutes_ago:
-            return SHOULD_RUN
+            return ENABLED
         else:
             return False
 
