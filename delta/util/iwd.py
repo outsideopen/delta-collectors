@@ -2,6 +2,11 @@ import collections
 
 import dbus
 
+from delta import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 class Iwd:
     @staticmethod
@@ -92,7 +97,10 @@ class Iwd:
                         "net.connman.iwd.Station",
                     )
 
-                    station.Scan()
+                    try:
+                        station.Scan()
+                    except dbus.exceptions.DBusException as e:
+                        logger.error("Enabling Wifi Scan failed")
 
                     for path3, rssi in station.GetOrderedNetworks():
                         properties2 = objects[path3]["net.connman.iwd.Network"]
