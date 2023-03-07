@@ -1,3 +1,4 @@
+import ipaddress
 import os
 import re
 import subprocess
@@ -59,6 +60,8 @@ class Netdiscover(Collector):
 
             subnet = SUBNETS[subnet_index]
 
+            self.wake_up_hosts(subnet)
+
             cmd = f"arp-scan {subnet}"
             cmd += f" --interval={INTERVAL}"
             self.logger.debug(f"Command: {cmd}")
@@ -116,6 +119,23 @@ class Netdiscover(Collector):
         with open(SUBNET_INDEX_FILENAME, "w") as f:
             f.write(str(subnet_index))
             f.close()
+
+    def wake_up_hosts(self, subnet):
+        ips = ipaddress.ip_network(subnet)
+        ip_list = [str(ip) for ip in ips]
+
+        for ip in ip_list:
+            cmd = f"arping -c 1 {ip}"
+
+            try:
+                subprocess.run(
+                    cmd, shell=True, stdout=subprocess.PIPE, check=True
+                ).stdout.decode("utf-8")
+
+            except Exception as e:
+                # arping returns non-zero exit code, when the host cannot be found.
+                # We swallow this error, to reduce the noise
+                pass
 
     def parse_line(self, line):
         regex = "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
