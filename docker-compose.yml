@@ -26,6 +26,8 @@ services:
     ports:
       - "21:21"
       - "80:80"
+      - "443:443"
+      - "3389:3389"
     restart: unless-stopped
     volumes:
       - ./opencanary.conf:/opencanary/opencanary.conf
