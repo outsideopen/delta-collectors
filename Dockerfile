@@ -9,7 +9,7 @@ COPY . .
 RUN flit build
 
 
-FROM alpine:3.17.1 AS production
+FROM alpine:3.19.1 AS production
 
 WORKDIR /app/data
 
