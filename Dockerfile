@@ -1,4 +1,4 @@
-FROM python:3.10.9-alpine AS builder
+FROM python:3.12.2-alpine AS builder
 
 RUN apk add --no-cache gcc libc-dev linux-headers git
 RUN python3 -m pip install flit
